@@ -44,13 +44,6 @@ struct rwa1{
     s2 member2{};
 };
 
-bool isNumber(const std::string& str)
-{
-    return !str.empty() &&
-        std::find_if(str.begin(), str.end(),
-            [](unsigned char c) { return !std::isdigit(c); }) == str.end();
-}
-
 unsigned int get_total_parts(){
     std::cout << "How many parts in total? ";
     bool is_positive = false;
@@ -70,10 +63,12 @@ void get_total_boxes(std::vector<int>& boxes){
     getline(std::cin, input);
     std::istringstream istr(input);
     int num;
-    while(istr >> num){
+    while(istr >> num && boxes.size() < 4){
         if(num < 0){
+            boxes.empty();
             std::cout << "Please enter a positive number !!!!" << '\n';
             std::cout << "How many boxes for S/M/L/XL? ";
+            // std::cin.ignore();
             std::string input;
             getline(std::cin, input);
             std::istringstream istr(input);
@@ -115,8 +110,8 @@ std::string box_type(int var){
 }
 
 int main(){
-    num_parts = get_total_parts();
-    std::cin.ignore();
+    // num_parts = get_total_parts();
+    // std::cin.ignore();
     get_total_boxes(boxes);
     get_part_per_box(part_per_box);
     // num_parts = 192;
