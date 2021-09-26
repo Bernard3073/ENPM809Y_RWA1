@@ -1,8 +1,9 @@
 #include<iostream>
 #include<vector>
 #include<sstream>
+#include<algorithm>
 
-unsigned int num_parts;
+signed int num_parts;
 std::vector<int> boxes, part_per_box;
 std::vector<int> fill_box;
 
@@ -43,9 +44,23 @@ struct rwa1{
     s2 member2{};
 };
 
+bool isNumber(const std::string& str)
+{
+    return !str.empty() &&
+        std::find_if(str.begin(), str.end(),
+            [](unsigned char c) { return !std::isdigit(c); }) == str.end();
+}
+
 unsigned int get_total_parts(){
     std::cout << "How many parts in total? ";
-    std::cin >> num_parts;
+    bool is_positive = false;
+    while(std::cin >> num_parts){
+        if(num_parts > 0) break;
+        else{
+            std::cout << "Please enter a positive number !!!!" << '\n';
+            std::cout << "How many parts in total? ";
+        }
+    }
     return num_parts;
 }
 
@@ -55,7 +70,16 @@ void get_total_boxes(std::vector<int>& boxes){
     getline(std::cin, input);
     std::istringstream istr(input);
     int num;
-    while(istr >> num && boxes.size() <= 4) boxes.push_back(num);
+    while(istr >> num){
+        if(num < 0){
+            std::cout << "Please enter a positive number !!!!" << '\n';
+            std::cout << "How many boxes for S/M/L/XL? ";
+            std::string input;
+            getline(std::cin, input);
+            std::istringstream istr(input);
+        }
+        else boxes.push_back(num);
+    }
 }
 
 void get_part_per_box(std::vector<int>& part_per_box){
@@ -64,7 +88,17 @@ void get_part_per_box(std::vector<int>& part_per_box){
     getline(std::cin, input);
     std::istringstream istr(input);
     int num;
-    while(istr >> num && part_per_box.size() <= 4) part_per_box.push_back(num);
+
+    while(istr >> num){
+        if(num < 0){
+            std::cout << "Please enter a positive number !!!!" << '\n';
+            std::cout << "How many parts per box for S/M/L/XL? ";
+            std::string input;
+            getline(std::cin, input);
+            std::istringstream istr(input);
+        }
+        else part_per_box.push_back(num);
+    }
 }
 
 void fill_up_boxes(const std::vector<int> &fill_box){
@@ -79,6 +113,7 @@ std::string box_type(int var){
         default: break;
     }
 }
+
 int main(){
     num_parts = get_total_parts();
     std::cin.ignore();
@@ -92,7 +127,7 @@ int main(){
     
     for(int i=boxes.size()-1; i >= 0; i--){
         if(part_per_box[i] > num_parts){
-            std::cout << box_type(i) << " box 0 -- remaining parts: " << num_parts << '\n';
+            std::cout << box_type(i) << " box " << "(" << boxes[i] << " x "<< part_per_box[i] << " max) : 0 -- remaining parts: " << num_parts << '\n';
             continue;
         }
         int j = 0;
@@ -100,7 +135,7 @@ int main(){
             num_parts -= part_per_box[i];
             j++;
         }
-        std::cout << box_type(i) << " box " << j << " -- remaining parts: " << num_parts << '\n';
+        std::cout << box_type(i) << " box " << "(" << boxes[i] << " x "<< part_per_box[i] << " max): " << j << " -- remaining parts: " << num_parts << '\n';
     }
     std::cout << "parts not in boxes:" << num_parts << '\n';
     // s1 var1{ 1, 2 };//initialize a and b for s1
