@@ -58,41 +58,43 @@ unsigned int get_total_parts(){
 }
 
 void get_total_boxes(std::vector<int>& boxes){
-    std::cout << "How many boxes for S/M/L/XL? ";
+    
     std::string input;
-    getline(std::cin, input);
-    std::istringstream istr(input);
     int num;
-    while(istr >> num && boxes.size() < 4){
-        if(num < 0){
-            boxes.empty();
-            std::cout << "Please enter a positive number !!!!" << '\n';
-            std::cout << "How many boxes for S/M/L/XL? ";
-            // std::cin.ignore();
-            std::string input;
-            getline(std::cin, input);
-            std::istringstream istr(input);
+    while(true){
+        std::cout << "How many boxes for S/M/L/XL? ";
+        getline(std::cin, input);
+        std::istringstream istr(input);
+        while(istr >> num){
+            if(num < 0) break;
+            boxes.push_back(num);
         }
-        else boxes.push_back(num);
+        if(boxes.size()==4) break;
+        else{
+            std::cin.clear();
+            boxes.clear();
+            std::cerr << "Please enter four positive numbers!\n";
+        }
     }
 }
 
 void get_part_per_box(std::vector<int>& part_per_box){
-    std::cout << "How many parts per box for S/M/L/XL? ";
     std::string input;
-    getline(std::cin, input);
-    std::istringstream istr(input);
     int num;
-
-    while(istr >> num){
-        if(num < 0){
-            std::cout << "Please enter a positive number !!!!" << '\n';
-            std::cout << "How many parts per box for S/M/L/XL? ";
-            std::string input;
-            getline(std::cin, input);
-            std::istringstream istr(input);
+    while(true){
+        std::cout << "How many parts per box for S/M/L/XL? ";
+        getline(std::cin, input);
+        std::istringstream istr(input);
+        while(istr >> num){
+            if(num < 0) break;
+            part_per_box.push_back(num);
         }
-        else part_per_box.push_back(num);
+        if(part_per_box.size()==4) break;
+        else{
+            std::cin.clear();
+            part_per_box.clear();
+            std::cerr << "Please enter four positive number !\n";
+        }
     }
 }
 
@@ -110,13 +112,10 @@ std::string box_type(int var){
 }
 
 int main(){
-    // num_parts = get_total_parts();
-    // std::cin.ignore();
+    num_parts = get_total_parts();
+    std::cin.ignore();
     get_total_boxes(boxes);
     get_part_per_box(part_per_box);
-    // num_parts = 192;
-    // boxes = {2, 1, 4, 5};
-    // part_per_box = {5, 10, 20, 23};
     std::cout << "Boxes that can be built with " << num_parts << " pegs:" << '\n';
     std::cout << "-------------------------------------------------" << '\n';
     
