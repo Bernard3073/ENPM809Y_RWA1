@@ -1,3 +1,13 @@
+/**
+ * @file main.cpp
+ * @author Bo-Shiang Wang (bwang24@umd.edu)
+ * @brief 
+ * @version 0
+ * @date 2021-09-27
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #include<iostream>
 #include<vector>
 #include<sstream>
@@ -5,7 +15,7 @@
 
 signed int num_parts;
 std::vector<int> boxes, part_per_box;
-std::vector<int> fill_box;
+std::vector<std::pair<int, int>> fill_box;
 
 /**
 * @brief Get the total number of parts to be placed in boxes* 
@@ -28,6 +38,7 @@ void get_part_per_box(std::vector<int>& part_per_box);
  */
 void fill_up_boxes(const std::vector<int> &fill_box);
 
+std::string box_type(int var);
 
 struct s1{
     unsigned int a{};
@@ -98,7 +109,14 @@ void get_part_per_box(std::vector<int>& part_per_box){
     }
 }
 
-void fill_up_boxes(const std::vector<int> &fill_box){
+void fill_up_boxes(const std::vector<std::pair<int, int>> &fill_box){
+    std::cout << "Boxes that can be built with " << num_parts << " pegs:" << '\n';
+    std::cout << "-------------------------------------------------" << '\n';
+    int n = fill_box.size();
+    for(int i=n-1; i>=0; i--){
+        std::cout << box_type(i) << " box " << "(" << boxes[i] << " x "<< part_per_box[i] << " max): " << fill_box[n-1-i].first << " -- remaining parts: " << fill_box[n-1-i].second << '\n';
+    }
+    std::cout << "parts not in boxes:" << num_parts << '\n';
 }
 
 std::string box_type(int var){
@@ -112,16 +130,17 @@ std::string box_type(int var){
 }
 
 int main(){
+    // call function to get total number of parts
     num_parts = get_total_parts();
     std::cin.ignore();
+    // call function to get total number of boxes of each type 
     get_total_boxes(boxes);
+    // call function to get the max number of parts per box type
     get_part_per_box(part_per_box);
-    std::cout << "Boxes that can be built with " << num_parts << " pegs:" << '\n';
-    std::cout << "-------------------------------------------------" << '\n';
-    
+
     for(int i=boxes.size()-1; i >= 0; i--){
         if(part_per_box[i] > num_parts){
-            std::cout << box_type(i) << " box " << "(" << boxes[i] << " x "<< part_per_box[i] << " max) : 0 -- remaining parts: " << num_parts << '\n';
+            fill_box.push_back(std::make_pair(0, num_parts));
             continue;
         }
         int j = 0;
@@ -129,9 +148,12 @@ int main(){
             num_parts -= part_per_box[i];
             j++;
         }
-        std::cout << box_type(i) << " box " << "(" << boxes[i] << " x "<< part_per_box[i] << " max): " << j << " -- remaining parts: " << num_parts << '\n';
+        fill_box.push_back(std::make_pair(j, num_parts));
     }
-    std::cout << "parts not in boxes:" << num_parts << '\n';
+
+    // call function to fill up boxes and to display result
+    fill_up_boxes(fill_box);
+
     // s1 var1{ 1, 2 };//initialize a and b for s1
     // s2 var2{ 3, 4 };//initialize a and b for s2
     // rwa1 application{var1, var2};//initialize member1 and member2 for rwa1
