@@ -13,7 +13,8 @@
 #include<sstream>
 #include<algorithm>
 
-signed int num_parts;
+unsigned int total_parts;
+unsigned int remaining_parts;
 std::vector<int> boxes, part_per_box;
 std::vector<std::pair<int, int>> fill_box;
 
@@ -24,54 +25,47 @@ std::vector<std::pair<int, int>> fill_box;
 unsigned int get_total_parts();
 /**
  * @brief Get the total number of boxes for each type
- * @param <data_structure> Data structure to hold box/part  information
+ * @param std::vector<int> Data structure to hold box/part information
  */
 void get_total_boxes(std::vector<int>& boxes);
 /**
  * @brief Get the number of parts for each box type
- * @param <data_structure> Data structure to hold box/part information
+ * @param std::vector<int> Data structure to hold box/part information
  */
 void get_part_per_box(std::vector<int>& part_per_box);
 /**
  * @brief Fill up boxes from user inputs
- * 
+ * @param std::vector<std::pair<int, int>> Data structure to hold box/part information
  */
-void fill_up_boxes(const std::vector<int> &fill_box);
-
+void fill_up_boxes(const std::vector<std::pair<int, int>> &fill_box);
+/**
+ * @brief check the type of box
+ * 
+ * @param var box number
+ * @return std::string for box type
+ */
 std::string box_type(int var);
 
-struct s1{
-    unsigned int a{};
-    unsigned int b{};
-};
-
-struct s2{
-    unsigned int a{};
-    unsigned int b{};
-};
-
-struct rwa1{
-    s1 member1{};
-    s2 member2{};
-};
 
 unsigned int get_total_parts(){
     std::cout << "How many parts in total? ";
     bool is_positive = false;
-    while(std::cin >> num_parts){
-        if(num_parts > 0) break;
+    // read input from the terminal and check if it is valid
+    while(std::cin >> total_parts){
+        if(total_parts > 0) break;
         else{
             std::cout << "Please enter a positive number !!!!" << '\n';
             std::cout << "How many parts in total? ";
         }
     }
-    return num_parts;
+    return total_parts;
 }
 
 void get_total_boxes(std::vector<int>& boxes){
     
     std::string input;
     int num;
+    // read input from the terminal and check if it is valid
     while(true){
         std::cout << "How many boxes for S/M/L/XL? ";
         getline(std::cin, input);
@@ -92,31 +86,46 @@ void get_total_boxes(std::vector<int>& boxes){
 void get_part_per_box(std::vector<int>& part_per_box){
     std::string input;
     int num;
+    // read input from the terminal and check if it is valid
     while(true){
         std::cout << "How many parts per box for S/M/L/XL? ";
         getline(std::cin, input);
         std::istringstream istr(input);
         while(istr >> num){
-            if(num < 0) break;
+            if(num < 0){
+                std::cerr << "Please enter four positive number !\n";
+                break;
+            }
+            bool flag = true;
+            // check if the parts per box is in ascending order
+            if(!part_per_box.empty()){
+                int parts_max = part_per_box[3];
+                for(int i=0; i < part_per_box.size()-1; i++){
+                    if(part_per_box[i] >= part_per_box[i+1]) flag = false;
+                }
+            }
+            if(flag == false){
+                std::cout << "parts per box should be ascending order for S/M/L/XL !!!" << '\n';
+                break;
+            }
             part_per_box.push_back(num);
         }
         if(part_per_box.size()==4) break;
         else{
             std::cin.clear();
-            part_per_box.clear();
-            std::cerr << "Please enter four positive number !\n";
+            part_per_box.clear();        
         }
     }
 }
 
 void fill_up_boxes(const std::vector<std::pair<int, int>> &fill_box){
-    std::cout << "Boxes that can be built with " << num_parts << " pegs:" << '\n';
+    std::cout << "Boxes that can be built with " << total_parts << " pegs:" << '\n';
     std::cout << "-------------------------------------------------" << '\n';
     int n = fill_box.size();
     for(int i=n-1; i>=0; i--){
         std::cout << box_type(i) << " box " << "(" << boxes[i] << " x "<< part_per_box[i] << " max): " << fill_box[n-1-i].first << " -- remaining parts: " << fill_box[n-1-i].second << '\n';
     }
-    std::cout << "parts not in boxes:" << num_parts << '\n';
+    std::cout << "parts not in boxes:" << remaining_parts << '\n';
 }
 
 std::string box_type(int var){
@@ -131,34 +140,28 @@ std::string box_type(int var){
 
 int main(){
     // call function to get total number of parts
-    num_parts = get_total_parts();
+    total_parts = get_total_parts();
     std::cin.ignore();
     // call function to get total number of boxes of each type 
     get_total_boxes(boxes);
     // call function to get the max number of parts per box type
     get_part_per_box(part_per_box);
 
+    // insert values inside fill_box
+    remaining_parts = total_parts;
     for(int i=boxes.size()-1; i >= 0; i--){
-        if(part_per_box[i] > num_parts){
-            fill_box.push_back(std::make_pair(0, num_parts));
+        if(part_per_box[i] > remaining_parts){
+            fill_box.push_back(std::make_pair(0, remaining_parts));
             continue;
         }
         int j = 0;
-        while(num_parts > part_per_box[i] && j != boxes[i]){
-            num_parts -= part_per_box[i];
+        while(remaining_parts > part_per_box[i] && j != boxes[i]){
+            remaining_parts -= part_per_box[i];
             j++;
         }
-        fill_box.push_back(std::make_pair(j, num_parts));
+        fill_box.push_back(std::make_pair(j, remaining_parts));
     }
 
     // call function to fill up boxes and to display result
     fill_up_boxes(fill_box);
-
-    // s1 var1{ 1, 2 };//initialize a and b for s1
-    // s2 var2{ 3, 4 };//initialize a and b for s2
-    // rwa1 application{var1, var2};//initialize member1 and member2 for rwa1
-    // std::cout << application.member1.a << '\n';
-    // std::cout << application.member1.b << '\n';
-    // std::cout << application.member2.a << '\n';
-    // std::cout << application.member2.b << '\n';
 }
